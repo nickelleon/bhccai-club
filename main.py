@@ -20,14 +20,14 @@ async def on_ready():
     print('Bot is ready to go!')
 
 # This defines a slash command that users can run
-@bot.slash_command(name="quote", description="Fetches the quote of the day.")
-async def quote(ctx):
+@bot.slash_command(name="AIEvents", description="Fetches events to post to Discord.")
+async def AIEvents(ctx):
     # Let the user know the bot is working on the request
     await ctx.defer()
 
     # --- 1. WEB SCRAPING PART ---
     # The URL of the website we want to scrape
-    url = "https://quotes.toscrape.com/"
+    url = "https://www.meetup.com/find/?location=us--ma--Boston&source=EVENTS&keywords=ai&dateRange=this-week"
     
     try:
         # Send a request to the website
@@ -38,20 +38,25 @@ async def quote(ctx):
         soup = BeautifulSoup(response.content, 'html.parser')
 
         # --- 2. PREPARING THE INFORMATION ---
-        # Find the first quote container on the page. 
+        # Find the first event container on the page. 
         # We find this by "inspecting element" in a web browser.
-        quote_element = soup.find('div', class_='quote')
+        AIEvents_element = soup.select('div[data-recommendationsource]')
 
-        if quote_element:
-            # Extract the text of the quote and the author
-            text = quote_element.find('span', class_='text').get_text(strip=True)
-            author = quote_element.find('small', class_='author').get_text(strip=True)
+        if AIEvents_element:
+            # Extract the items we want from the event
+            title   = AIEvents_element.find('h3').get_text(strip=True)
+            link    = AIEvents_element.find('a[href]')
+            date    = AIEvents_element.find('time').get_text(strip=True)
+            author  = AIEvents_element.select('h3 + div').get_text(strip=True)
+
 
             # --- 3. POSTING TO DISCORD ---
             # Create a nicely formatted embed
             embed = discord.Embed(
-                title="Quote of the Day 🖋️",
-                description=text,
+                title = title,
+                url = link,
+                description = "Dummy description for event post",
+                timestamp = date,
                 color=discord.Color.blue()
             )
             embed.set_footer(text=f"— {author}")
@@ -59,11 +64,11 @@ async def quote(ctx):
             # Send the embed back as the response
             await ctx.followup.send(embed=embed)
         else:
-            await ctx.followup.send("Sorry, I couldn't find a quote to share.")
+            await ctx.followup.send("Sorry, I couldn't find an event to share.")
 
     except requests.exceptions.RequestException as e:
         print(f"Error during web request: {e}")
-        await ctx.followup.send("Sorry, I couldn't connect to the quote website.")
+        await ctx.followup.send("Sorry, I couldn't connect to the event website.")
 
 
 # This is the last line: it runs the bot with your secret token
