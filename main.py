@@ -20,8 +20,8 @@ async def on_ready():
     print('Bot is ready to go!')
 
 # This defines a slash command that users can run
-@bot.slash_command(name="AIEvents", description="Fetches events to post to Discord.")
-async def AIEvents(ctx):
+@bot.slash_command(name="events", description="Fetches events to post to Discord.")
+async def events(ctx):
     # Let the user know the bot is working on the request
     await ctx.defer()
 
@@ -40,14 +40,14 @@ async def AIEvents(ctx):
         # --- 2. PREPARING THE INFORMATION ---
         # Find the first event container on the page. 
         # We find this by "inspecting element" in a web browser.
-        AIEvents_element = soup.select('div[data-recommendationsource]')
+        events_element = soup.select('div[data-recommendationsource]')
 
-        if AIEvents_element:
+        if events_element:
             # Extract the items we want from the event
-            title   = AIEvents_element.find('h3').get_text(strip=True)
-            link    = AIEvents_element.find('a[href]')
-            date    = AIEvents_element.find('time').get_text(strip=True)
-            author  = AIEvents_element.select('h3 + div').get_text(strip=True)
+            title   = events_element.find('h3').get_text(strip=True)
+            link    = events_element.find('a[href]')
+            date    = events_element.find('time').get_text(strip=True)
+            author  = events_element.select('h3 + div').get_text(strip=True)
 
 
             # --- 3. POSTING TO DISCORD ---
