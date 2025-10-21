@@ -36,18 +36,21 @@ async def events(ctx):
 
         # Parse the website's HTML content
         soup = BeautifulSoup(response.content, 'html.parser')
+        # print("=======", soup)
 
         # --- 2. PREPARING THE INFORMATION ---
         # Find the first event container on the page. 
         # We find this by "inspecting element" in a web browser.
-        events_element = soup.select('div[data-recommendationsource]')
+        events_element = soup.select('div[data-recommendationsource]')[0]
+        # print("==== SOUP ====", events_element)
 
         if events_element:
             # Extract the items we want from the event
             title   = events_element.find('h3').get_text(strip=True)
+            # print("==== TITLE ===", title)
             link    = events_element.find('a[href]')
             date    = events_element.find('time').get_text(strip=True)
-            author  = events_element.select('h3 + div').get_text(strip=True)
+            author  = events_element.select('h3 + div > div:first-child')[0].get_text(strip=True)
 
 
             # --- 3. POSTING TO DISCORD ---
